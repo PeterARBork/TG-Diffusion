@@ -2,6 +2,7 @@ from os import listdir
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import cm
 
 def parseanimalside(
     rawfolder,
@@ -10,7 +11,6 @@ def parseanimalside(
     pixelsize_mm,
     frameduration_h,
     num_pixels_to_average_source_over,
-    source_is_SAS=True,
 ):
     """ Turns raw data into parsed data (see definitions).
     
@@ -24,10 +24,14 @@ def parseanimalside(
         conc_matrix, source_vector, time_vector, distance_vector
     """
     
-    sas_matrix = parse_to_matrix(rawfolder, animalsidecombo + "_sas")
-    source_vector = sas_matrix[:, -num_pixels_to_average_source_over:].mean(axis=1)
+    source_is_SAS = True if "SAS" in parsedfolder else False
     
-    conc_matrix = parse_to_matrix(rawfolder, animalsidecombo + "_tg")
+    conc_matrix, normalizer_scalar = normalize_conc_matrix(
+        parse_to_matrix(rawfolder, animalsidecombo + "_tg")
+    )
+    sas_matrix = parse_to_matrix(rawfolder, animalsidecombo + "_sas") 
+    source_vector = sas_matrix[:, -num_pixels_to_average_source_over:].mean(axis=1) / normalizer_scalar
+    
     if not source_is_SAS:
         source_vector = conc_matrix[:, 0]
         assert source_vector.size == conc_matrix.shape[0], f"source_vector.size, conc_matrix.shape[0] = {source_vector.size}, {conc_matrix.shape[0]}"
@@ -54,6 +58,9 @@ def parseanimalside(
     plt.show()
     
     return conc_matrix, source_vector, time_vector, distance_vector
+
+def normalize_conc_matrix(m):
+    return m / np.max(m), np.max(m)
 
 def switch_left_sastg(f):
     sas_or_tg = "sas" if "sas" in f else "tg"
@@ -98,4 +105,3 @@ def parse_to_matrix(
     conc_matrix = np.transpose(conc_matrix_df.values)
     
     return conc_matrix
-
