@@ -183,7 +183,7 @@ def plot_prediction_data_error(
     conc_matrix,
     figsize=(16, 51),
     distance_units="mm",
-    time_units="min."
+    time_units="hours"
 ):
     distance_grid, time_grid = np.meshgrid(distance_vector, time_vector)
     vmax = max(np.max(prediction), np.max(conc_matrix))
@@ -230,6 +230,9 @@ def plot_prediction_data_error(
         ax.set_xlabel(f'Distance to SAS ({distance_units})')
         ax.set_ylabel(f'Time ({time_units})')
         ax.set_zlabel("MPI")
+        ax.locator_params(tight=True, nbins=4)
+
+    axes[2].set_zlim(-vmax, vmax)
 
     return fig
 
