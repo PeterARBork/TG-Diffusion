@@ -283,5 +283,5 @@ def plot_compare_data_prediction(folder, identifier, D_guess, subsampleskipsteps
         prediction,
         conc_matrix,
     )
-    saveto = saveto[:-4] + "_3D.png"
+    saveto = saveto[:-4] + "_3D.pdf"
     plt.savefig(saveto, bbox_inches='tight')
